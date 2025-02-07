@@ -14,18 +14,23 @@ namespace Cainos.PixelArtTopDown_Basic
         private Vector3 offset;
 
         private Vector3 targetPos;
+        private PhotonView targetPhotonView;
 
         private void Start()
         {
-            
             if (target == null) return;
             
-            offset = transform.position - target.position;
+            targetPhotonView = target.GetComponent<PhotonView>();
+            
+            // 화면 중앙에 플레이어를 두기 위해 X, Y 오프셋은 0으로, Z는 카메라와 플레이어의 거리로 설정
+            offset = new Vector3(0, 0, transform.position.z - target.position.z);
         }
 
         private void Update()
         {
             if (target == null) return;
+
+            if (targetPhotonView == null || !targetPhotonView.IsMine) return;
             
             targetPos = target.position + offset;
             transform.position = Vector3.Lerp(transform.position, targetPos, lerpSpeed * Time.deltaTime);

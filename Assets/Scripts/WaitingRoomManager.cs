@@ -19,6 +19,7 @@ public class WaitingRoomManager : MonoBehaviourPunCallbacks
         
         // UI 초기화
         UpdatePlayerCountUI();
+        GameStart(); //개발하는동안만 여기에
     }
 
 
@@ -36,6 +37,7 @@ public class WaitingRoomManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         UpdatePlayerCountUI();
+        //방 참가자 수가 다 차면 자동으로 게임시작
         if (PhotonNetwork.CurrentRoom.PlayerCount == roomOptions.MaxPlayers)
         {
             GameStart();
