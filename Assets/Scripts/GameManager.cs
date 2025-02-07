@@ -7,6 +7,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviourPunCallbacks
 {
     public static GameManager instance;
+    public UIManager uiManager;
     
     //게임 단계 상태 : 토론, 투표, 행동
     public enum GameState {Initialization, Night, Day, Voting, End}
@@ -34,6 +35,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         // 플레이어 생성 후 카메라의 target을 설정하는 예시 (예: GameManager에서)
         GameObject localPlayer = PhotonNetwork.Instantiate("PF player", spawnPosition.position, Quaternion.identity, 0);
         Camera.main.GetComponent<CameraFollow>().target = localPlayer.transform;
+        
         if (PhotonNetwork.IsMasterClient)
         {
             AssignRoles();
@@ -49,28 +51,40 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             if (i == 0)
             {
-                playerRoles[players[i].ActorNumber] = "마피아";
+                playerRoles[players[i].ActorNumber] = "Mafia";
             }
             else if(i == 1)
             {
-                playerRoles[players[i].ActorNumber] = "경찰";
+                playerRoles[players[i].ActorNumber] = "Police";
             }
             else if (i == 2)
             {
-                playerRoles[players[i].ActorNumber] = "의사";
+                playerRoles[players[i].ActorNumber] = "Doctor";
             }
             else
             {
-                playerRoles[players[i].ActorNumber] = "시민";
+                playerRoles[players[i].ActorNumber] = "citizen";
             }
         }
     }
-
+    
     [PunRPC]
     public void RPC_SetGameState(int state)
     {
         currentState = (GameState)state;
-        // 상태에 따라 UI 및 로직을 초기화하는 추가 작업을 실행
         Debug.Log("Game state changed to: " + currentState);
+
+        // UIManager를 통해 게임 상태 텍스트 업데이트
+        if (uiManager != null)
+        {
+            uiManager.UpdateGameStateUI(currentState.ToString());
+        }
+        
+        // 로컬 플레이어의 역할 정보를 UI에 업데이트하기
+        int actorNumber = PhotonNetwork.LocalPlayer.ActorNumber;
+        if (playerRoles.ContainsKey(actorNumber) && uiManager != null)
+        {
+            uiManager.UpdatePlayerRoleUI(playerRoles[actorNumber]);
+        }
     }
 }
