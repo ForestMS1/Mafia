@@ -40,6 +40,8 @@ MonoBehaviour:
   - Fire
   - RespawnSpaceship
   - RPC_SetGameState
+  - RPC_SendPoliceResult
+  - RPC_SetNightOutcome
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 0

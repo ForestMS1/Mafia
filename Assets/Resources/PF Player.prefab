@@ -104,6 +104,7 @@ GameObject:
   - component: {fileID: 4645356129590713290}
   - component: {fileID: -4470872012887456130}
   - component: {fileID: 6043107529144832296}
+  - component: {fileID: 5667878824712952402}
   m_Layer: 20
   m_Name: PF Player
   m_TagString: Player
@@ -356,3 +357,16 @@ MonoBehaviour:
     LayerIndex: 0
   - SynchronizeType: 0
     LayerIndex: 1
+--- !u!114 &5667878824712952402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5628018141983903104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e8abc86652ca419c9ecd474195c31c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isAlive: 0
