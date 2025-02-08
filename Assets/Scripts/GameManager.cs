@@ -162,7 +162,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             RequestPoliceInvestigation(policeTarget, policeActor);
         }
         // 밤 단계 종료 → 결과 계산
-        NightPhaseManager.ResolveNightPhase(mafiaTarget, doctorTarget);
+        NightPhaseManager.instance.ResolveNightPhase();
 
         // 밤이 끝나고 낮으로 전환
         photonView.RPC("RPC_SetGameState", RpcTarget.All, (int)GameState.Day);
