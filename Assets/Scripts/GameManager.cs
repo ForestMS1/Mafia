@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviourPunCallbacks
     
     //각 플레이어 역할 정보를 저장할 딕셔너리
     public Dictionary<int, string> playerRoles = new Dictionary<int, string>();
+    //각 플레이어 생존 정보를 저장할 딕셔너리
+    public Dictionary<int, bool> playerAliveStatus = new Dictionary<int, bool>();
 
     private void Awake()
     {
@@ -49,7 +51,8 @@ public class GameManager : MonoBehaviourPunCallbacks
             photonView.RPC("RPC_SetGameState", RpcTarget.All, (int)GameState.Night);
         }
     }
-
+    
+    //플레이어에게 직업할당하는 메서드
     public void AssignRoles()
     {
         Player[] players = PhotonNetwork.PlayerList;
@@ -71,6 +74,15 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 playerRoles[players[i].ActorNumber] = "citizen";
             }
+            RegisterPlayer(players[i].ActorNumber);
+        }
+    }
+    // 플레이어 생존상태 초기화 메서드
+    public void RegisterPlayer(int actorNumber)
+    {
+        if (!playerAliveStatus.ContainsKey(actorNumber))
+        {
+            playerAliveStatus.Add(actorNumber, true);
         }
     }
     
@@ -90,6 +102,70 @@ public class GameManager : MonoBehaviourPunCallbacks
                 uiManager.UpdatePlayerRoleUI(playerRoles[actorNumber]);
             }
         }
+
+        StartCoroutine("NightPhaseRoutine");
+    }
+    // 밤 단계 루틴: 마피아, 의사, 경찰 선택 단계를 순차적으로 진행
+    private IEnumerator NightPhaseRoutine()
+    {
+        // 1. 마피아 선택 단계
+        Debug.Log("마피아 선택 단계 시작");
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(true);
+        }
+        // 마피아가 선택할 수 있도록 nightDuration 동안 대기
+        yield return new WaitForSeconds(nightDuration);
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(false);
+        }
+        int mafiaTarget = NightPhaseManager.instance.mafiaTargetActor; // 예: -1이면 미선택
+
+        // 2. 의사 선택 단계
+        Debug.Log("의사 선택 단계 시작");
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(true);
+        }
+        yield return new WaitForSeconds(nightDuration);
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(false);
+        }
+        int doctorTarget = NightPhaseManager.instance.doctorTargetActor;
+
+        // 3. 경찰 선택 단계
+        Debug.Log("경찰 선택 단계 시작");
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(true);
+        }
+        yield return new WaitForSeconds(nightDuration);
+        if (uiManager != null)
+        {
+            uiManager.ShowSelectionUI(false);
+        }
+        int policeTarget = NightPhaseManager.instance.policeTargetActor;
+        // 경찰은 선택과 동시에 조사 기능이 실행될 수 있도록 별도로 처리(여기서는 이미 NightPhaseManager 또는 GameManager의 다른 함수에서 처리)
+        int policeActor = -1;
+        foreach (var p in playerRoles)
+        {
+            if (p.Value == "Police")
+            {
+                policeActor = p.Key;
+            }
+        }
+
+        if (policeActor != -1)
+        {
+            RequestPoliceInvestigation(policeTarget, policeActor);
+        }
+        // 밤 단계 종료 → 결과 계산
+        NightPhaseManager.ResolveNightPhase(mafiaTarget, doctorTarget);
+
+        // 밤이 끝나고 낮으로 전환
+        photonView.RPC("RPC_SetGameState", RpcTarget.All, (int)GameState.Day);
     }
     
     // 경찰의 조사 요청을 처리하는 함수
@@ -151,6 +227,17 @@ public class GameManager : MonoBehaviourPunCallbacks
             {
                 uiManager.UpdateNightOutcomeUI("밤에 아무도 죽지 않았습니다.");
             }
+        }
+    }
+    
+    // PlayerInfo의 Die() 함수에서 호출하여 상태 업데이트
+    public void OnPlayerDied(int actorNumber)
+    {
+        if (playerAliveStatus.ContainsKey(actorNumber))
+        {
+            playerAliveStatus[actorNumber] = false;
+            // 추가로 UI 업데이트, 게임 로직 처리(예: 승리 조건 체크) 등 수행
+            Debug.Log($"GameManager: 플레이어 {actorNumber}의 상태를 죽음으로 업데이트했습니다.");
         }
     }
 }

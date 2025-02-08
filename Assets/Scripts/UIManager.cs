@@ -87,6 +87,28 @@ public class UIManager : MonoBehaviour
         Transform mafiaResultTransform = policeOutComeUI.transform.Find("mafiaResultTXT");
         TextMeshProUGUI mafiaResultText = mafiaResultTransform.GetComponent<TextMeshProUGUI>();
         mafiaResultText.text = "This is Mafia? : " + isMafia;
+        StartCoroutine("ClosePoliceOutComeUI");
         //policeOutComeUI.GetComponentInChildren<TextMeshProUGUI>.text = "경찰 조사 결과: " + role;
     }
+    
+    //일정 시간 후 경찰 결과창 끄기 (코루틴)
+    IEnumerator ClosePoliceOutComeUI()
+    {
+        yield return new WaitForSeconds(5.0f);
+        policeOutComeUI.gameObject.SetActive(false);
+    }
+
+    public void ShowSelectionUI(bool selected)
+    {
+        //selected가 true면 UI를 켠다
+        if (selected)
+        {
+            //현재 생존해있는 player목록을 나열한다.
+        }
+        else
+        {
+            //UI를 끈다.
+        }
+    }
+    
 }
